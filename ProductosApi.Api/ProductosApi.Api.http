@@ -1,0 +1,54 @@
+@host = http://localhost:5055
+# Pega aquí el token que devuelve el login (sin la palabra Bearer)
+@token = pega-aqui-el-token
+
+### 1. Registrar un usuario (201). Repetirlo da 409; con clave corta da 400
+POST {{host}}/api/auth/registro
+Content-Type: application/json
+
+{ "correo": "ana@correo.com", "clave": "Clave123" }
+
+###
+### 2. Login de un usuario normal: copia el token de la respuesta (200)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "correo": "ana@correo.com", "clave": "Clave123" }
+
+###
+### 3. Login con clave incorrecta (401)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "correo": "ana@correo.com", "clave": "incorrecta" }
+
+###
+### 4. Login del administrador de prueba (200). Su rol es Admin
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "correo": "admin@productos.com", "clave": "Admin123!" }
+
+###
+### 5. Listar productos: es público, no necesita token (200)
+GET {{host}}/api/productos
+
+###
+### 6. Crear un producto SIN token (401)
+POST {{host}}/api/productos
+Content-Type: application/json
+
+{ "nombre": "Monitor LG 24", "precio": 499.00, "stock": 8, "categoriaId": 3 }
+
+###
+### 7. Crear un producto CON token (201)
+POST {{host}}/api/productos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "nombre": "Monitor LG 24", "precio": 499.00, "stock": 8, "categoriaId": 3 }
+
+###
+### 8. Eliminar con token de rol Usuario (403). Con el token del Admin da 204
+DELETE {{host}}/api/productos/4
+Authorization: Bearer {{token}}
